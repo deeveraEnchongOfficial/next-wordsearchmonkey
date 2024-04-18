@@ -1,0 +1,79 @@
+.container {
+  display: flex;
+  flex-direction: column; /* Default vertical layout */
+  align-items: center;
+  justify-content: center;
+  padding: 10px 20px;
+  background-color: var(--dark-blue);
+  border-radius: 10px;
+  margin: 20px;
+  color: var(--pale-yellow);
+  border: 2px solid var(--bright-orange);
+}
+
+/* Adjust layout for mobile screens */
+@media (max-width: 768px) {
+  .container {
+    flex-direction: column-reverse; /* Elements stack vertically in reverse order */
+    flex-wrap: wrap; /* Enable wrapping */
+    justify-content: space-around; /* Distribute space around items */
+    max-width: 100%; /* Ensure container takes full width */
+  }
+  .list {
+    display: flex;
+    flex-direction: row; /* Align children horizontally */
+    flex-wrap: wrap; /* Allow children to wrap to next line */
+    padding: 0;
+    margin: 0;
+    list-style-type: none; /* Remove default list bullet styling */
+    width: 100%; /* Ensure list takes full width of the container */
+  }
+  .otherContent {
+    order: 0; /* Ensure this content stays at the top */
+  }
+  .item,
+  .completed {
+    flex: 1 1 auto; /* Allow items to grow and shrink as needed */
+    margin: 5px; /* Add margin for spacing between items */
+  }
+}
+
+.list {
+  padding: 0;
+  list-style-type: none;
+  width: 100%; /* Ensure list takes full width of the container */
+}
+
+.item,
+.completed {
+  padding-bottom: 10px;
+  font-weight: bold;
+  color: var(--light-blue);
+}
+
+.completed {
+  position: relative;
+  font-style: italic;
+  font-weight: normal;
+  color: var(--bright-orange);
+}
+
+.completed::before {
+  content: "";
+  position: absolute;
+  top: 30%;
+  left: 0;
+  width: 0%;
+  height: 2px;
+  background-color: var(--pale-yellow);
+  animation: lineThrough 1s ease forwards;
+}
+
+@keyframes lineThrough {
+  from {
+    width: 0%;
+  }
+  to {
+    width: 100%;
+  }
+}

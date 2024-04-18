@@ -1,0 +1,85 @@
+.gridContainer {
+  font-family: Arial, Helvetica, sans-serif;
+  display: flex;
+  flex-direction: column; /* default to column for mobile */
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  overflow: hidden;
+  background-color: var(--pale-yellow);
+  margin: 0;
+  padding: 0;
+}
+
+@media (min-width: 768px) { /* Breakpoint for desktop screens */
+  .gridContainer {
+    flex-direction: row; /* Switch to row layout for desktop */
+  }
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(15, var(--cell-size));
+  grid-gap: var(--grid-gap);
+  justify-content: center;
+  background-color: var(--dark-blue);
+  padding: calc(var(--grid-gap) * 1);
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.row {
+  display: contents;
+}
+
+.cell {
+  width: var(--cell-size);
+  height: var(--cell-size);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--light-blue); /* Updated to use light blue */
+  color: var(--dark-blue); /* Updated to use dark blue */
+  font-weight: 900;
+  font-size: calc(var(--cell-size) / 2.5);
+  cursor: pointer;
+  transition: background-color 0.2s, color 0.2s;
+  border-radius: 5px;
+  user-select: none;
+}
+
+.cell:hover,
+.cell.selected {
+  background-color: var(--bright-orange); /* Updated to use bright orange */
+  color: var(--pale-yellow); /* Updated to use pale yellow */
+}
+
+.cell.correct {
+  background-color: #76b947; /* You may want to add a green variable if needed */
+  animation: correctAnimation 1.5s;
+}
+
+@keyframes correctAnimation {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.14);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+@keyframes selectedAnimation {
+  from {
+    transform: scale(1);
+  }
+  to {
+    transform: scale(1.1);
+  }
+}
+
+.cell.selected {
+  animation: selectedAnimation 0.2s ease-in-out forwards;
+}
