@@ -5,6 +5,7 @@ import WordList from "@/components/WordList/WordList";
 import Toast from "@/components/Toast";
 import WordCounter from "@/components/WordCounter";
 import Timer from "@/components/Timer";
+import CompleteModal from "@/components/CompleteModal"
 
 interface Cell {
   letter: string;
@@ -421,6 +422,7 @@ const WordSearch = ( wordsProp: WordSearchProps ) => {
 
   return (
     <div className={styles.gridContainer}>
+      {correctWords.length == wordList.length ?  <CompleteModal /> : '' }
       {wordList?.length > 0 && (
         <div className="flex flex-col items-center justify-center space-y-4">
           <WordCounter correctCount={correctWords.length} totalCount={wordList.length}/>
