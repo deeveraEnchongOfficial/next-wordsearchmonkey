@@ -422,7 +422,7 @@ const WordSearch = ( wordsProp: WordSearchProps ) => {
 
   return (
     <div className={styles.gridContainer}>
-      {correctWords.length == wordList.length ?  <CompleteModal /> : '' }
+      {correctWords.length == wordList.length && <CompleteModal />}
       {wordList?.length > 0 && (
         <div className="flex flex-col items-center justify-center space-y-4">
           <WordCounter correctCount={correctWords.length} totalCount={wordList.length}/>
