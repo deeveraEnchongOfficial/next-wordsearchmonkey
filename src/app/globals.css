@@ -3,17 +3,31 @@
 @tailwind utilities;
 
 :root {
-    --cell-size: calc(100vmin / 19);
-    --grid-gap: calc(var(--cell-size) / 5);
+  --cell-size: calc(100vmin / 19);
+  --grid-gap: calc(var(--cell-size) / 5);
+  --grid-blocks: 15;
 
-    --pale-yellow: #FAE6B1;
-    --bright-orange: #FFA101;
-    --light-blue: #B3DEE5;
-    --dark-blue: #31525B;
-  }
-  
+  --pale-yellow: #fae6b1;
+  --bright-orange: #ffa101;
+  --light-blue: #b3dee5;
+  --dark-blue: #31525b;
+}
+
 body {
-    background-color: var(--pale-yellow);
-    color: var(--dark-blue);
-    font-family: Arial, Helvetica, sans-serif;
+  background-color: var(--pale-yellow);
+  color: var(--dark-blue);
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+/* ---- reset ---- */
+body {
+  margin: 0;
+  font: normal 75% Arial, Helvetica, sans-serif;
+}
+
+canvas {
+  border: 1px solid silver;
+  background: white;
+  cursor: -webkit-grab;
+  display: block;
 }

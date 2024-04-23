@@ -3,8 +3,8 @@ import React, { useState, useEffect } from "react";
 import styles from "@/components/WordSearch/WordSearch.module.css";
 import WordList from "@/components/WordList/WordList";
 import Toast from "@/components/Toast";
-import WordCounter from "@/components/WordCounter";
 import Timer from "@/components/Timer";
+import CompleteModal from "@/components/CompleteModal"
 
 interface Cell {
   letter: string;
@@ -24,11 +24,10 @@ interface Toast {
 
 interface WordSearchProps {
   words: string[];
+  gridSize: number;
 }
 
-const WordSearch = ( wordsProp: WordSearchProps ) => {
-  const { words } = wordsProp;
-  const gridSize = 15;
+const WordSearch: React.FC<WordSearchProps> = ({ words, gridSize }) => {
 
   const [grid, setGrid] = useState<Cell[][]>([]);
   const [selectedCells, setSelectedCells] = useState<Position[]>([]);
@@ -98,7 +97,7 @@ const WordSearch = ( wordsProp: WordSearchProps ) => {
   useEffect(() => {
     setWordList(words);
     generateGrid();
-  }, [wordList]);
+  }, [wordList?.length]);
 
   useEffect(() => {
     if (correctWords.length === wordList.length) {
@@ -148,7 +147,7 @@ const WordSearch = ( wordsProp: WordSearchProps ) => {
       setWordList(words); // Make sure to update the word list
       generateGrid(); // Regenerate the grid whenever the word list updates
     }
-  }, [words]); // Ensures this effect only runs when words changes
+  }, [words?.length]); // Ensures this effect only runs when words changes
 
 
   const generateGrid = () => {
@@ -352,6 +351,10 @@ const WordSearch = ( wordsProp: WordSearchProps ) => {
           const dx = newRow - lastCell.row;
           const dy = newCol - lastCell.col;
 
+          if (selectedCells.length === 1) {
+            setInitialMove({ row: dx, col: dy });
+          }
+
           // If this is the first move after the initial selection
           if (
             initialMove &&
@@ -421,9 +424,9 @@ const WordSearch = ( wordsProp: WordSearchProps ) => {
 
   return (
     <div className={styles.gridContainer}>
+      {correctWords.length === wordList.length && <CompleteModal />}
       {wordList?.length > 0 && (
         <div className="flex flex-col items-center justify-center space-y-4">
-          <WordCounter correctCount={correctWords.length} totalCount={wordList.length}/>
           <Timer isActive={isGridInteracted}/>
           <WordList wordList={wordList} correctWords={correctWords} />
       </div>

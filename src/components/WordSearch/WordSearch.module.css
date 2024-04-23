@@ -11,7 +11,8 @@
   padding: 0;
 }
 
-@media (min-width: 768px) { /* Breakpoint for desktop screens */
+@media (min-width: 768px) {
+  /* Breakpoint for desktop screens */
   .gridContainer {
     flex-direction: row; /* Switch to row layout for desktop */
   }
@@ -19,7 +20,7 @@
 
 .grid {
   display: grid;
-  grid-template-columns: repeat(15, var(--cell-size));
+  grid-template-columns: repeat(var(--grid-blocks), var(--cell-size));
   grid-gap: var(--grid-gap);
   justify-content: center;
   background-color: var(--dark-blue);
