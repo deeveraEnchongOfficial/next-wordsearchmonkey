@@ -2,20 +2,13 @@
   font-family: Arial, Helvetica, sans-serif;
   display: flex;
   flex-direction: column; /* default to column for mobile */
-  justify-content: center;
+  justify-content: flex-start;
   align-items: center;
-  height: 100vh;
+  height: 80vh;
   overflow: hidden;
-  background-color: var(--pale-yellow);
+  background-color: var(--primary-color);
   margin: 0;
   padding: 0;
-}
-
-@media (min-width: 768px) {
-  /* Breakpoint for desktop screens */
-  .gridContainer {
-    flex-direction: row; /* Switch to row layout for desktop */
-  }
 }
 
 .grid {
@@ -23,10 +16,24 @@
   grid-template-columns: repeat(var(--grid-blocks), var(--cell-size));
   grid-gap: var(--grid-gap);
   justify-content: center;
-  background-color: var(--dark-blue);
+  background-color: var(--container-color);
   padding: calc(var(--grid-gap) * 1);
   border-radius: 10px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  margin: 20px;
+}
+
+@media (min-width: 768px) {
+  /* Breakpoint for desktop screens */
+  .gridContainer {
+    flex-direction: row; /* Switch to row layout for desktop */
+    justify-content: center;
+    height: 100vh;
+  }
+
+  .grid {
+    margin-left: 0px;
+  }
 }
 
 .row {
@@ -39,8 +46,8 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background-color: var(--light-blue); /* Updated to use light blue */
-  color: var(--dark-blue); /* Updated to use dark blue */
+  background-color: var(--gridcells-color); /* Updated to use light blue */
+  color: var(--container-color); /* Updated to use dark blue */
   font-weight: 900;
   font-size: calc(var(--cell-size) / 2.5);
   cursor: pointer;
@@ -51,8 +58,8 @@
 
 .cell:hover,
 .cell.selected {
-  background-color: var(--bright-orange); /* Updated to use bright orange */
-  color: var(--pale-yellow); /* Updated to use pale yellow */
+  background-color: var(--selection-color);
+  color: var(--primary-color);
 }
 
 .cell.correct {

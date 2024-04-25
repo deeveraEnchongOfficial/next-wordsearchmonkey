@@ -3,12 +3,11 @@
   flex-direction: column; /* Default vertical layout */
   align-items: center;
   justify-content: center;
-  padding: 10px 20px;
-  background-color: var(--dark-blue);
+  padding: 20px 20px;
+  background-color: var(--container-color);
   border-radius: 10px;
   margin: 20px;
-  color: var(--pale-yellow);
-  border: 2px solid var(--bright-orange);
+  color: var(--primary-color);
 }
 
 /* Adjust layout for mobile screens */
@@ -18,13 +17,15 @@
     flex-wrap: wrap; /* Enable wrapping */
     justify-content: space-around; /* Distribute space around items */
     max-width: 100%; /* Ensure container takes full width */
+    margin: 10px;
+    paddding-top: 20px;
   }
   .list {
     display: flex;
     flex-direction: row; /* Align children horizontally */
     flex-wrap: wrap; /* Allow children to wrap to next line */
     padding: 0;
-    margin: 0;
+    margin-top: 0;
     list-style-type: none; /* Remove default list bullet styling */
     width: 100%; /* Ensure list takes full width of the container */
   }
@@ -48,14 +49,14 @@
 .completed {
   padding-bottom: 10px;
   font-weight: bold;
-  color: var(--light-blue);
+  color: var(--text-color);
 }
 
 .completed {
   position: relative;
   font-style: italic;
   font-weight: normal;
-  color: var(--bright-orange);
+  color: var(--selection-color);
 }
 
 .completed::before {
@@ -65,7 +66,7 @@
   left: 0;
   width: 0%;
   height: 2px;
-  background-color: var(--pale-yellow);
+  background-color: var(--primary-color);
   animation: lineThrough 1s ease forwards;
 }
 

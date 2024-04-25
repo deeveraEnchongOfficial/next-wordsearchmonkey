@@ -424,7 +424,7 @@ const WordSearch: React.FC<WordSearchProps> = ({ words, gridSize }) => {
 
   return (
     <div className={styles.gridContainer}>
-      {correctWords.length === wordList.length && <CompleteModal />}
+      {words && correctWords.length === wordList.length && <CompleteModal />}
       {wordList?.length > 0 && (
         <div className="flex flex-col items-center justify-center space-y-4">
           <Timer isActive={isGridInteracted}/>

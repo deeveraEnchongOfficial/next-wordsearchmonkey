@@ -7,15 +7,17 @@
   --grid-gap: calc(var(--cell-size) / 5);
   --grid-blocks: 15;
 
-  --pale-yellow: #fae6b1;
-  --bright-orange: #ffa101;
-  --light-blue: #b3dee5;
-  --dark-blue: #31525b;
+  /* Default Theme = Contrasting Citrus */
+  --primary-color: #fae6b1;
+  --selection-color: #ffa101;
+  --text-color: #b3dee5;
+  --container-color: #31525b;
+  --gridcells-color: #b3dee5;
 }
 
 body {
-  background-color: var(--pale-yellow);
-  color: var(--dark-blue);
+  background-color: var(--primary-color);
+  color: var(--container-color);
   font-family: Arial, Helvetica, sans-serif;
 }
 
