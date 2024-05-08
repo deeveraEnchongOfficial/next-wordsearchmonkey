@@ -8,6 +8,7 @@
   border-radius: 10px;
   margin: 20px;
   color: var(--primary-color);
+  border: 2px solid var(--list-border-color);
 }
 
 /* Adjust layout for mobile screens */
@@ -18,7 +19,7 @@
     justify-content: space-around; /* Distribute space around items */
     max-width: 100%; /* Ensure container takes full width */
     margin: 10px;
-    paddding-top: 20px;
+    padding-top: 20px;
   }
   .list {
     display: flex;
@@ -45,6 +46,11 @@
   width: 100%; /* Ensure list takes full width of the container */
 }
 
+.counter {
+  color: var(--text-color);
+  font-weight: bold;
+}
+
 .item,
 .completed {
   padding-bottom: 10px;
@@ -56,7 +62,7 @@
   position: relative;
   font-style: italic;
   font-weight: normal;
-  color: var(--selection-color);
+  color: var(--text-color);
 }
 
 .completed::before {

@@ -31,7 +31,7 @@ const WordList: React.FC<Props> = ({ wordList, correctWords }) => {
           );
         })}
       </ul>
-      <text className="font-semibold">{correctWords.length} / {wordList.length}</text>
+      <text className={styles.counter}>{correctWords.length} / {wordList.length}</text>
     </div>
   );
 };

@@ -13,11 +13,13 @@
   --text-color: #b3dee5;
   --container-color: #31525b;
   --gridcells-color: #b3dee5;
+  --container-text-color: #31525b;
+  --list-border-color: #31525b;
 }
 
 body {
   background-color: var(--primary-color);
-  color: var(--container-color);
+  color: var(--container-text-color);
   font-family: Arial, Helvetica, sans-serif;
 }
 

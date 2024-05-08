@@ -6,6 +6,7 @@ import Loader from "@/components/Loader/Loader";
 import client from '@/lib/apolloClient';
 import SettingsModal from "@/components/SettingsModal";
 import NotFound from "@/components/NotFound/NotFound";
+import WordSearchFreeSelect from '@/components/WordSearchFreeSelect/WordSearchFreeSelect';
 
 const DEFAULT_VALUE = 15;
 
@@ -41,7 +42,7 @@ export default function Home() {
     const environment = process.env.NODE_ENV;
 
     if (environment === 'development') {
-      setCategoryName(postName || 'fruits');
+      setCategoryName(postName || 'insects');
     } else {
       setCategoryName(postName || null);
     }
@@ -72,11 +73,16 @@ export default function Home() {
     setIsModalOpen(!isModalOpen);
   }
 
+  const type = localStorage.getItem("type")
+
   return (
     <>
       <div className="relative flex justify-center items-center h-screen">
-        <WordSearch words={wordList} gridSize={gridSize} />
         <SettingsModal isOpen={isModalOpen} onClose={handleToggleModal} />
+        {type === "cell-select" ?
+          <WordSearch words={wordList} gridSize={gridSize} /> :
+          <WordSearchFreeSelect words={wordList} gridSize={gridSize} />
+        }
       </div>
     </>
   );

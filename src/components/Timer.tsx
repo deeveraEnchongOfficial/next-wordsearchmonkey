@@ -41,11 +41,15 @@ const Timer: React.FC<TimerProps> = ({ isActive }) => {
         return `${String(minutes).padStart(2, '0')}:${String(sec).padStart(2, '0')}`;
     };
 
+    useEffect(() => {
+        localStorage.setItem('timeEnded', formatTime());
+    }, [isActive]);
+
     return (
         <div className="flex flex-col items-center justify-center relative w-40">
-            <div className="flex items-center text-2xl font-semibold text-gray-800 space-x-2">
+            <div className="flex items-center text-2xl font-semibold text-black space-x-2">
                 <svg
-                    className="w-6 h-6 text-gray-800"
+                    className="w-6 h-6 text-black"
                     aria-hidden="true"
                     xmlns="http://www.w3.org/2000/svg"
                     width="24"

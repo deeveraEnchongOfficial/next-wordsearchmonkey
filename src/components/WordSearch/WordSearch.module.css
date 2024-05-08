@@ -46,8 +46,8 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background-color: var(--gridcells-color); /* Updated to use light blue */
-  color: var(--container-color); /* Updated to use dark blue */
+  background-color: var(--gridcells-color);
+  color: var(--container-text-color);
   font-weight: 900;
   font-size: calc(var(--cell-size) / 2.5);
   cursor: pointer;

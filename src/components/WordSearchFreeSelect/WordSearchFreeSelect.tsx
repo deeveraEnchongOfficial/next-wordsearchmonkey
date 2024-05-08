@@ -1,14 +1,15 @@
 "use client";
 import React, { useState, useEffect } from "react";
-import styles from "@/components/WordSearch/WordSearch.module.css";
+import styles from "@/components/WordSearch/WordSearch.module.css"; //change
 import WordList from "@/components/WordList/WordList";
 import Toast from "@/components/Toast";
 import Timer from "@/components/Timer";
-import CompleteModal from "@/components/CompleteModal"
+import CompleteModal from "@/components/CompleteModal";
 
 interface Cell {
   letter: string;
   selected: boolean;
+  correct?: boolean;
 }
 
 interface Position {
@@ -27,19 +28,21 @@ interface WordSearchProps {
   gridSize: number;
 }
 
-const WordSearch: React.FC<WordSearchProps> = ({ words, gridSize }) => {
-
+const WordSearchFreeSelect: React.FC<WordSearchProps> = ({ words, gridSize }) => {
   const [grid, setGrid] = useState<Cell[][]>([]);
-  const [selectedCells, setSelectedCells] = useState<Position[]>([]);
+  const [startPoint, setStartPoint] = useState<Position | null>(null);
+  const [endPoint, setEndPoint] = useState<Position | null>(null);
+  const [lines, setLines] = useState<Array<{ start: Position; end: Position }>>(
+    []
+  );
   const [correctWords, setCorrectWords] = useState<[Position[], string][]>([]);
-  const [initialMove, setInitialMove] = useState<Position | null>(null);
+  const [wordList, setWordList] = useState<string[]>([]);
+  const [isGridInteracted, setIsGridInteracted] = useState<boolean>(false);
   const [toast, setToast] = useState<Toast>({
     visible: false,
     message: "",
     type: "success",
   });
-  const [wordList, setWordList] = useState<string[]>([]);
-  const [isGridInteracted, setIsGridInteracted] = useState<boolean>(false);
 
   const successMessages: string[] = [
     "Hey, you found a word!",
@@ -91,7 +94,6 @@ const WordSearch: React.FC<WordSearchProps> = ({ words, gridSize }) => {
     "#95a5a6", // Concrete
     "#f1c40f", // Sun Flower
   ];
-  
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
@@ -108,7 +110,10 @@ const WordSearch: React.FC<WordSearchProps> = ({ words, gridSize }) => {
   useEffect(() => {
     function generateGrid() {
       let initialGrid: Cell[][] = Array.from({ length: gridSize }, () =>
-        Array.from({ length: gridSize }, () => ({ letter: "", selected: false }))
+        Array.from({ length: gridSize }, () => ({
+          letter: "",
+          selected: false,
+        }))
       );
 
       const directions: Position[] = [
@@ -121,7 +126,8 @@ const WordSearch: React.FC<WordSearchProps> = ({ words, gridSize }) => {
       wordList.forEach((word) => {
         let placed = false;
         while (!placed) {
-          const direction = directions[Math.floor(Math.random() * directions.length)];
+          const direction =
+            directions[Math.floor(Math.random() * directions.length)];
           const startPos: Position = {
             row: Math.floor(Math.random() * gridSize),
             col: Math.floor(Math.random() * gridSize),
@@ -142,13 +148,12 @@ const WordSearch: React.FC<WordSearchProps> = ({ words, gridSize }) => {
 
       setGrid(initialGrid);
     }
-    
+
     if (words && words.length > 0) {
       setWordList(words); // Make sure to update the word list
       generateGrid(); // Regenerate the grid whenever the word list updates
     }
   }, [words?.length]); // Ensures this effect only runs when words changes
-
 
   const generateGrid = () => {
     let initialGrid: Cell[][] = Array.from({ length: gridSize }, () =>
@@ -230,183 +235,98 @@ const WordSearch: React.FC<WordSearchProps> = ({ words, gridSize }) => {
     return alphabet[Math.floor(Math.random() * alphabet.length)];
   };
 
-  const isValidNextCell = (lastCell: Position, nextCell: Position): boolean => {
-    if (!lastCell) return true;
-
-    const dx = nextCell.row - lastCell.row;
-    const dy = nextCell.col - lastCell.col;
-
-    if (selectedCells.length === 1) {
-      setInitialMove({ row: dx, col: dy });
-    }
-
-    if (selectedCells.length > 1 && initialMove) {
-      // If the change in x-direction (dx) is not equal to the initial row, reset the initial move
-      if (dx !== initialMove.row) {
-        return false;
-      }
-    }
-
-    if (selectedCells.length > 1 && initialMove) {
-      // If the change in x-direction (dx) is not equal to the initial row, reset the initial move
-      if (dy !== initialMove.col) {
-        return false;
-      }
-    }
-
-    if (Math.abs(dx) > 1 || Math.abs(dy) > 1) return false;
-    if (dx === 0 && dy === 0) return false;
-
-    if (selectedCells.length > 1) {
-      const direction = {
-        x: nextCell.row - selectedCells[0].row,
-        y: nextCell.col - selectedCells[0].col,
-      };
-      const normalizedDirection = {
-        x: Math.sign(direction.x),
-        y: Math.sign(direction.y),
-      };
-      const prevDirection = {
-        x: lastCell.row - selectedCells[0].row,
-        y: lastCell.col - selectedCells[0].col,
-      };
-      const normalizedPrevDirection = {
-        x: Math.sign(prevDirection.x),
-        y: Math.sign(prevDirection.y),
-      };
-
-      return (
-        normalizedDirection.x === normalizedPrevDirection.x &&
-        normalizedDirection.y === normalizedPrevDirection.y
-      );
-    }
-
-    return true;
-  };
-
   const handleMouseDown = (row: number, col: number) => {
     if (correctWords.length != wordList.length) {
       setIsGridInteracted(true);
     }
-    const newSelectedCells = [{ row, col }];
-    setSelectedCells(newSelectedCells);
-    const newGrid = grid.map((gridRow, rowIndex) =>
-      gridRow.map((cell, colIndex) => ({
+    setStartPoint({ row, col });
+    setEndPoint(null); // Reset end point on new selection
+  };
+
+  const handleMouseEnter = (row: number, col: number) => {
+    if (startPoint) {
+      setEndPoint({ row, col });
+    }
+  };
+
+  const handleMouseUp = () => {
+    // The logic here will be executed only if the mouse up event happens inside the grid
+    if (startPoint && endPoint) {
+      finalizeSelection();
+      setStartPoint(null);
+      setEndPoint(null);
+    }
+  };
+
+  useEffect(() => {
+    highlightCells();
+  }, [lines, startPoint, endPoint]); // Highlight cells as the selection changes
+
+  const highlightCells = () => {
+    if (!startPoint || !endPoint) return; // Only highlight if we have a valid selection
+
+    // Calculate straight line cells between startPoint and endPoint
+    const allSelectedCells = calculateLineCells(startPoint, endPoint);
+    const newGrid = grid.map((row, rowIndex) =>
+      row.map((cell, colIndex) => ({
         ...cell,
-        selected: rowIndex === row && colIndex === col,
+        selected: allSelectedCells.some(
+          (cell) => cell.row === rowIndex && cell.col === colIndex
+        ),
       }))
     );
     setGrid(newGrid);
   };
 
-  const handleMouseEnter = (row: number, col: number) => {
-    if (selectedCells.length > 0) {
-      const nextCell = { row, col };
-      const lastCell = selectedCells[selectedCells.length - 1];
-      if (isValidNextCell(lastCell, nextCell)) {
-        const newSelectedCells = [...selectedCells, nextCell];
-        setSelectedCells(newSelectedCells);
-        const newGrid = grid.map((gridRow, rowIndex) =>
-          gridRow.map((cell, colIndex) => ({
-            ...cell,
-            selected: newSelectedCells.some(
-              (sc) => sc.row === rowIndex && sc.col === colIndex
-            ),
-          }))
-        );
-        setGrid(newGrid);
-      }
-    }
-  };
-
-  const handleTouchStart = (
-    event: React.TouchEvent<HTMLDivElement>,
-    row: number,
-    col: number
-  ): void => {
-    if (correctWords.length != wordList.length) {
-      setIsGridInteracted(true);
-    }
-    event.preventDefault(); // Prevent scrolling
-    handleMouseDown(row, col);
-  };
-
-  const handleTouchMove = (event: React.TouchEvent<HTMLDivElement>): void => {
-    event.preventDefault(); // Prevent scrolling
-    if (event.touches.length > 0) {
-      const touch = event.touches[0];
-      const target = document.elementFromPoint(
-        touch.clientX,
-        touch.clientY
-      ) as HTMLDivElement;
-
-      if (target && target.dataset.row && target.dataset.col) {
-        const newRow = parseInt(target.dataset.row, 10);
-        const newCol = parseInt(target.dataset.col, 10);
-
-        // Assuming lastCell is the last cell in the selectedCells array
-        const lastCell = selectedCells[selectedCells.length - 1];
-
-        if (lastCell) {
-          const dx = newRow - lastCell.row;
-          const dy = newCol - lastCell.col;
-
-          if (selectedCells.length === 1) {
-            setInitialMove({ row: dx, col: dy });
-          }
-
-          // If this is the first move after the initial selection
-          if (
-            initialMove &&
-            Math.abs(initialMove.row) === 1 &&
-            Math.abs(initialMove.col) === 1
-          ) {
-            const isDiagonal =
-              Math.abs(initialMove.row) === 1 &&
-              Math.abs(initialMove.col) === 1;
-            const movingDiagonally = Math.abs(dx) === 1 && Math.abs(dy) === 1;
-            const directionChanged =
-              (isDiagonal && !movingDiagonally) ||
-              (!isDiagonal && movingDiagonally);
-
-            // If trying to change direction (diagonal to non-diagonal or vice versa), return early
-            if (directionChanged) {
-              return;
-            }
-          }
-
-          handleMouseEnter(newRow, newCol);
-        }
-      }
-    }
-  };
-
-  const handleTouchEnd = () => {
-    finalizeSelection();
-  };
-
-  const handleMouseUp = () => {
-    finalizeSelection();
-  };
-
   const finalizeSelection = () => {
+    if (!startPoint || !endPoint) return;
+
+    const selectedCells = calculateLineCells(startPoint, endPoint);
     const selectedWord = selectedCells
       .map(({ row, col }) => grid[row][col].letter)
       .join("");
 
-    if (wordList.includes(selectedWord) && !correctWords.some(([_, word]) => word === selectedWord)) {
-      // Store the positions and word as a tuple
-      setCorrectWords([...correctWords, [selectedCells, selectedWord]]);
+    if (
+      wordList.includes(selectedWord) &&
+      !correctWords.some(([_, word]) => word === selectedWord)
+    ) {
+      setCorrectWords((prevWords) => [
+        ...prevWords,
+        [selectedCells, selectedWord],
+      ]);
+      setLines((prevLines) => [
+        ...prevLines,
+        { start: startPoint, end: endPoint },
+      ]);
       setToast({
         visible: false, //set to true to display
         message:
           successMessages[Math.floor(Math.random() * successMessages.length)],
         type: "success",
       });
-    } else {
-      setGrid(
-        grid.map((row) => row.map((cell) => ({ ...cell, selected: false })))
+      // Update grid to mark cells as correct
+      const newGrid = grid.map((row, rowIndex) =>
+        row.map((cell, colIndex) => {
+          const isSelected = selectedCells.some(
+            (cell) => cell.row === rowIndex && cell.col === colIndex
+          );
+          return {
+            ...cell,
+            selected: false, // Remove general selection
+            correct: isSelected ? true : cell.correct, // Mark as correct if part of correct word
+          };
+        })
       );
+      setGrid(newGrid);
+    } else {
+      // Optionally reset grid selection visually here if needed
+      const newGrid = grid.map((row) =>
+        row.map((cell) => ({
+          ...cell,
+          selected: false,
+        }))
+      );
+      setGrid(newGrid);
       if (selectedCells.length > 1) {
         setToast({
           visible: false, //set to true to display
@@ -416,10 +336,79 @@ const WordSearch: React.FC<WordSearchProps> = ({ words, gridSize }) => {
         });
       }
     }
-    setSelectedCells([]);
-
-    // Automatically hide the toast after 3 seconds
     setTimeout(() => setToast({ visible: false, message: "", type: "" }), 3000);
+  };
+
+  const calculateLineCells = (start: Position, end: Position) => {
+    const cells = [];
+    let x1 = start.col;
+    let y1 = start.row;
+    let x2 = end.col;
+    let y2 = end.row;
+
+    let dx = Math.abs(x2 - x1);
+    let dy = -Math.abs(y2 - y1);
+    let sx = x1 < x2 ? 1 : -1;
+    let sy = y1 < y2 ? 1 : -1;
+    let err = dx + dy;
+    let e2;
+
+    while (true) {
+      cells.push({ row: y1, col: x1 });
+      if (x1 === x2 && y1 === y2) break;
+      e2 = 2 * err;
+      if (e2 >= dy) {
+        err += dy;
+        x1 += sx;
+      }
+      if (e2 <= dx) {
+        err += dx;
+        y1 += sy;
+      }
+    }
+
+    return cells;
+  };
+
+  useEffect(() => {
+    const handleGlobalMouseUp = () => {
+      if (startPoint) {
+        finalizeSelection();
+        setStartPoint(null);
+        setEndPoint(null);
+      }
+    };
+
+    // Attach mouseup listener to the whole document to handle case when mouse is released outside the grid
+    document.addEventListener("mouseup", handleGlobalMouseUp);
+
+    return () => {
+      // Clean up the event listener when the component unmounts
+      document.removeEventListener("mouseup", handleGlobalMouseUp);
+    };
+  }, [startPoint, endPoint]);
+
+  const handleTouchStart = (event: any) => {
+    const touch = event.touches[0];
+    const row = touch.target.getAttribute('data-row');
+    const col = touch.target.getAttribute('data-col');
+    handleMouseDown(parseInt(row), parseInt(col));
+  };
+
+  const handleTouchMove = (event: any) => {
+    const touch = event.touches[0];
+    const targetElement = document.elementFromPoint(touch.clientX, touch.clientY);
+    if (targetElement && targetElement.hasAttribute('data-row')) {
+      const row = targetElement.getAttribute('data-row');
+      const col = targetElement.getAttribute('data-col');
+      if (row && col) {
+        handleMouseEnter(parseInt(row), parseInt(col));
+      }
+    }
+  };
+
+  const handleTouchEnd = () => {
+    handleMouseUp();
   };
 
   const isTimerShown = localStorage.getItem("isTimerShown")
@@ -431,7 +420,7 @@ const WordSearch: React.FC<WordSearchProps> = ({ words, gridSize }) => {
         <div className="flex flex-col items-center justify-center space-y-4">
           {isTimerShown === 'true' && <Timer isActive={isGridInteracted} />}
           <WordList wordList={wordList} correctWords={correctWords} />
-      </div>
+        </div>
       )}
       <div className={styles.grid}>
         {grid.map((row, rowIndex) => (
@@ -449,8 +438,8 @@ const WordSearch: React.FC<WordSearchProps> = ({ words, gridSize }) => {
               const cellClass = isCorrectCell
                 ? `${styles.cell} ${styles.correct}`
                 : cell.selected
-                ? `${styles.cell} ${styles.selected}`
-                : styles.cell;
+                  ? `${styles.cell} ${styles.selected}`
+                  : styles.cell;
 
               const cellStyle =
                 isCorrectCell && colorIndex !== -1
@@ -465,7 +454,7 @@ const WordSearch: React.FC<WordSearchProps> = ({ words, gridSize }) => {
                   onMouseDown={() => handleMouseDown(rowIndex, colIndex)}
                   onMouseEnter={() => handleMouseEnter(rowIndex, colIndex)}
                   onMouseUp={handleMouseUp}
-                  onTouchStart={(e) => handleTouchStart(e, rowIndex, colIndex)}
+                  onTouchStart={handleTouchStart}
                   onTouchMove={handleTouchMove}
                   onTouchEnd={handleTouchEnd}
                   data-row={rowIndex}
@@ -485,4 +474,4 @@ const WordSearch: React.FC<WordSearchProps> = ({ words, gridSize }) => {
   );
 };
 
-export default WordSearch;
+export default WordSearchFreeSelect;
